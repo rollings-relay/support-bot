@@ -80,7 +80,10 @@ class TextMessage(Text):
                     "<blockquote>When silent mode is enabled, messages are not sent to the user.</blockquote>\n\n"
                     "• /information\n"
                     "User information"
-                    "<blockquote>Receive a message with basic information about the user.</blockquote>"
+                    "<blockquote>Receive a message with basic information about the user.</blockquote>\n\n"
+                    "• /close\n"
+                    "Close ticket"
+                    "<blockquote>Ask the user if their question is resolved and close the topic.</blockquote>"
                 ),
                 "user_restarted_bot": f"User {hbold('{name}')} restarted the bot!",
                 "user_stopped_bot": f"User {hbold('{name}')} stopped the bot!",
@@ -109,6 +112,18 @@ class TextMessage(Text):
                 "silent_mode_disabled": (
                     "<b>Silent mode deactivated!</b> The user will receive all messages."
                 ),
+                "close_ticket_request": (
+                    "❓ <b>Is your question resolved?</b>\n\nIf yes, we will close the ticket."
+                ),
+                "close_ticket_sent": "<b>Close request sent to the user.</b>",
+                "close_ticket_confirmed": (
+                    "✅ <b>Ticket closed. Thank you for reaching out!</b>\n"
+                    "If you have a new question — feel free to write."
+                ),
+                "close_ticket_declined": (
+                    "📝 <b>Please clarify the details of your question.</b>\n\n"
+                    "What exactly remains unresolved? We will do our best to help."
+                ),
             },
             "ru": {
                 "select_language": f"👋 <b>Привет</b>, {hbold('{full_name}')}!\n\nВыберите язык:",
@@ -134,7 +149,10 @@ class TextMessage(Text):
                     "<blockquote>При включенном тихом режиме сообщения не отправляются пользователю.</blockquote>\n\n"
                     "• /information\n"
                     "Информация о пользователе"
-                    "<blockquote>Получить сообщение с основной информацией о пользователе.</blockquote>"
+                    "<blockquote>Получить сообщение с основной информацией о пользователе.</blockquote>\n\n"
+                    "• /close\n"
+                    "Закрыть тикет"
+                    "<blockquote>Спросить пользователя, решён ли его вопрос, и закрыть топик.</blockquote>"
                 ),
                 "user_restarted_bot": f"Пользователь {hbold('{name}')} перезапустил(а) бота!",
                 "user_stopped_bot": f"Пользователь {hbold('{name}')} остановил(а) бота!",
@@ -162,6 +180,18 @@ class TextMessage(Text):
                 ),
                 "silent_mode_disabled": (
                     "<b>Тихий режим деактивирован!</b> Пользователь будет получать все сообщения."
+                ),
+                "close_ticket_request": (
+                    "❓ <b>Ваш вопрос решён?</b>\n\nЕсли да, мы закроем тикет."
+                ),
+                "close_ticket_sent": "<b>Запрос на закрытие отправлен пользователю.</b>",
+                "close_ticket_confirmed": (
+                    "✅ <b>Тикет закрыт. Спасибо, что обратились!</b>\n"
+                    "Если появится новый вопрос — пишите."
+                ),
+                "close_ticket_declined": (
+                    "📝 <b>Пожалуйста, уточните детали вашего вопроса.</b>\n\n"
+                    "Что именно осталось нерешённым? Мы постараемся помочь."
                 ),
             },
         }

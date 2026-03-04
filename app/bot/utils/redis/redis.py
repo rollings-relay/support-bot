@@ -40,13 +40,15 @@ class RedisStorage:
         async with self.redis.client() as client:
             await client.hset(name, key, value)
 
-    async def _update_index(self, message_thread_id: int, user_id: int) -> None:
+    async def _update_index(self, message_thread_id: int | None, user_id: int) -> None:
         """
         Updates the user index in Redis.
 
         :param message_thread_id: The ID of the message thread.
         :param user_id: The ID of the user to be updated in the index.
         """
+        if message_thread_id is None:
+            return
         index_key = f"{self.NAME}_index_{message_thread_id}"
         await self._set(index_key, user_id, "1")
 
@@ -95,6 +97,24 @@ class RedisStorage:
         json_data = json.dumps(data.to_dict())
         await self._set(self.NAME, id_, json_data)
         await self._update_index(data.message_thread_id, id_)
+
+    async def clear_topic(self, message_thread_id: int, user_id: int) -> None:
+        """
+        Clears topic data from Redis index and resets user's thread fields.
+
+        :param message_thread_id: The ID of the message thread to clear.
+        :param user_id: The ID of the user.
+        """
+        index_key = f"{self.NAME}_index_{message_thread_id}"
+        async with self.redis.client() as client:
+            await client.delete(index_key)
+        user_data = await self.get_user(user_id)
+        if user_data:
+            user_data.message_thread_id = None
+            user_data.message_silent_mode = False
+            user_data.message_silent_id = None
+            json_data = json.dumps(user_data.to_dict())
+            await self._set(self.NAME, user_id, json_data)
 
     async def get_all_users_ids(self) -> list[int]:
         """

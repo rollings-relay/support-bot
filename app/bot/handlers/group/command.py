@@ -3,11 +3,12 @@ from contextlib import suppress
 from aiogram import Router, F
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, MagicData
-from aiogram.types import Message
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.markdown import hcode, hbold
 
 from app.bot.manager import Manager
 from app.bot.utils.redis import RedisStorage
+from app.bot.utils.texts import TextMessage
 
 router_id = Router()
 router_id.message.filter(
@@ -95,6 +96,42 @@ async def handler(message: Message, manager: Manager, redis: RedisStorage) -> No
     text = manager.text_message.get("user_information")
     # Reply with formatted user information
     await message.reply(text.format_map(format_data))
+
+
+@router.message(Command("close"))
+async def handler(message: Message, manager: Manager, redis: RedisStorage) -> None:
+    """
+    Sends the user a confirmation message with Yes/No buttons to close the ticket.
+
+    :param message: Message object.
+    :param manager: Manager object.
+    :param redis: RedisStorage object.
+    :return: None
+    """
+    user_data = await redis.get_by_message_thread_id(message.message_thread_id)
+    if not user_data: return None  # noqa
+
+    user_text_msg = TextMessage(user_data.language_code or "en")
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(
+            text="✅ Да",
+            callback_data=f"close_ticket:yes:{message.message_thread_id}",
+        ),
+        InlineKeyboardButton(
+            text="❌ Нет",
+            callback_data=f"close_ticket:no:{message.message_thread_id}",
+        ),
+    ]])
+
+    with suppress(TelegramBadRequest):
+        await message.bot.send_message(
+            chat_id=user_data.id,
+            text=user_text_msg.get("close_ticket_request"),
+            reply_markup=keyboard,
+        )
+
+    await message.reply(manager.text_message.get("close_ticket_sent"))
 
 
 @router.message(Command(commands=["ban"]))
