@@ -1,5 +1,6 @@
 from aiogram import Router, F
 from aiogram.enums import ChatMemberStatus
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import ChatMemberUpdated
 from aiogram.utils.markdown import hlink
 
@@ -38,8 +39,15 @@ async def handle_chat_member_update(
 
     url = f"https://t.me/{user_data.username[1:]}" if user_data.username != "-" else f"tg://user?id={user_data.id}"
 
-    await update.bot.send_message(
-        chat_id=manager.config.bot.GROUP_ID,
-        text=text.format(name=hlink(user_data.full_name, url)),
-        message_thread_id=user_data.message_thread_id,
-    )
+    if user_data.message_thread_id is not None:
+        try:
+            await update.bot.send_message(
+                chat_id=manager.config.bot.GROUP_ID,
+                text=text.format(name=hlink(user_data.full_name, url)),
+                message_thread_id=user_data.message_thread_id,
+            )
+        except TelegramBadRequest as e:
+            if "message thread not found" in str(e):
+                await redis.clear_topic(user_data.message_thread_id, user_data.id)
+            else:
+                raise
