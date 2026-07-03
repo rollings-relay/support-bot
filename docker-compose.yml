@@ -21,6 +21,7 @@ services:
     image: redis:alpine
     container_name: support-redis
     restart: always
+    command: sh -c "chown -R redis:redis /data && exec /bin/setpriv --reuid redis --regid redis --clear-groups /usr/local/bin/redis-server"
     volumes:
       - ./redis/data/:/data
     networks:
